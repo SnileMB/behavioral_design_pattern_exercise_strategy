@@ -9,6 +9,10 @@ class LineItem:
     qty: int
     unit_price: float
 
+    @property
+    def subtotal(self) -> float:
+        return self.qty * self.unit_price
+
 
 class PricingStrategy(ABC):
     @abstractmethod
@@ -24,7 +28,8 @@ class NoDiscount(PricingStrategy):
 
 class PercentageDiscount(PricingStrategy):
     def __init__(self, percent: float) -> None:
-        assert 0 <= percent <= 100, "percent must be between 0 and 100"
+        if not (0 <= percent <= 100):
+            raise ValueError("percent must be between 0 and 100")
         self.percent = percent
 
     def apply(self, subtotal: float, items: list[LineItem]) -> float:
@@ -60,4 +65,4 @@ class CompositeStrategy(PricingStrategy):
 
 
 def compute_subtotal(items: list[LineItem]) -> float:
-    return round(sum(it.unit_price * it.qty for it in items), 2)
+    return round(sum(it.subtotal for it in items), 2)
